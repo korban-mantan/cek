@@ -1,10 +1,89 @@
 <template>
-    <h1>tes edit</h1>
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-8">
+        <router-link
+          :to="{ name: 'poll.index' }"
+          class="btn btn-primary btn-sm rounded shadow mb-3"
+          >Back</router-link
+        >
+        <div class="card rounded shadow">
+          <div class="card-header">Edit Poll</div>
+          <div class="card-body">
+            <form @submit.prevent="update()">
+              <div class="mb-3">
+                <label for="" class="form-label">Title</label>
+                <input type="text" class="form-control" v-model="poll.title">
+                <div v-if="validation.title" class="text-danger">{{validation.title[0]}}</div>
+              </div>
+              <div class="mb-3">
+                <label for="" class="form-label">Description</label>
+                <input type="text" class="form-control" v-model="poll.desc">
+                <div v-if="validation.desc" class="text-danger">{{validation.desc[0]}}</div>
+              </div>
+              <div class="mb-3">
+                <label for="" class="form-label">Body</label>
+                <input type="text" class="form-control" v-model="poll.body">
+                <div v-if="validation.body" class="text-danger">{{validation.body[0]}}</div>
+              </div>
+
+              <button class="btn btn-outline-primary">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+import { reactive, ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import axios from "axios";
 
 export default {
-  name: 'App',
-}
+  setup() {
+    let poll = reactive({
+      title: "",
+      desc: "",
+      body: "",
+    });
+
+    const validation = ref([]);
+    const router = useRouter();
+    const route = useRoute();
+
+    onMounted(() => {
+      axios.get(`http://127.0.0.1:8000/api/poll/${route.params.id}`)
+      .then((result) => {
+        poll.title = result.data.data.title
+        poll.desc = result.data.data.desc
+        poll.body = result.data.data.body
+      }).catch((err) => {
+        console.log(err.response.data)
+      });
+    });
+
+    function update () {
+      axios.put(
+        `http://127.0.0.1:8000/api/poll/${route.params.id}`,
+        poll
+      )
+      .then(() => {
+        router.push({
+          name: 'poll.index'
+        })
+      }).catch((err) => {
+        validation.value = err.response.data
+      });
+    }
+
+    return {
+      poll,
+      validation,
+      router,
+      update
+    }
+  },
+};
 </script>
