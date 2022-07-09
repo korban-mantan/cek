@@ -43,7 +43,8 @@ class PollController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json($validator->errors(),
+            Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         try {
@@ -70,7 +71,14 @@ class PollController extends Controller
      */
     public function show($id)
     {
-        //
+        $poll = Poll::findOrFail($id);
+
+        $response = [
+            'message' => 'Detail of Poll Resource',
+            'data' => $poll
+        ];
+
+        return response()->json($response, Response::HTTP_OK);
     }
 
     /**
@@ -82,7 +90,33 @@ class PollController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $poll = Poll::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'title' => ['required'],
+            'desc' => ['required'],
+            'body' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(),
+            Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        try{
+            $poll->update($request->all());
+            $response = [
+                'message' => 'Poll updated',
+                'data' => $poll
+
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Failed' . $e->errorInfo
+            ]);
+        }
     }
 
     /**
@@ -93,6 +127,19 @@ class PollController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $poll = Poll::findOrFail($id);
+
+        try {
+            $poll->delete();
+            $response = [
+                'message' => 'Poll deleted'
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => "Failed" . $e->errorInfo
+            ]);
+        }
     }
 }

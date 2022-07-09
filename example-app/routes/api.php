@@ -20,6 +20,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/poll', [PollController::class, 'index']);
+// Route::get('/poll', [PollController::class, 'index']);
 
-Route::post('/poll', [PollController::class, 'store']);
+// Route::post('/poll', [PollController::class, 'store']);
+
+// Route::put('/poll/{id}', [PollController::class, 'update']);
+
+// Route::get('/poll/{id}', [PollController::class, 'show']);
+
+// Route::delete('/poll/{id}', [PollController::class, 'destroy']);
+
+Route::resource('/poll', PollController::class)->except(['create', 'edit']);
